@@ -29,20 +29,28 @@ async function run() {
 
 
 
+    const userCollection = client.db("bistroBoss").collection("user");
     const menuItemsCollection = client.db("bistroBoss").collection("menu");
     const reviewsCollection = client.db("bistroBoss").collection("review");
     const cartsCollection = client.db("bistroBoss").collection("carts");
+
+
+    // Get oparation for find menus
 
     app.get("/menu", async (req, res) => {
       const result = await menuItemsCollection.find().toArray();
       res.send(result);
     })
 
+    // Grt opatarion for find reviews
+
     app.get("/review", async (req, res) => {
       const result = await reviewsCollection.find().toArray();
       res.send(result);
     })
 
+
+    // Post and get oparation for carts item
 
     app.post("/carts", async (req, res) => {
       const cartItem = req.body;
@@ -57,11 +65,31 @@ async function run() {
     res.send(result);
   })
 
+  // Delete oparation for carts
+
   app.delete("/carts/:id", async (req, res) => {
     const id = req.params.id;
     const query = {_id: new ObjectId(id)};
     const result = await cartsCollection.deleteOne(query);
     res.send(result); 
+  })
+
+
+  // Post oparation for insert user
+
+  app.post("/user", async (req, res) => {
+    const user = req.body;
+
+    // Insert use if it's not exists,,,
+
+    const query = req.body;
+    const isExists = await userCollection.findOne(query);
+    if(isExists) {
+      return res.send({message: "user alrady exists", insertedId: null})
+    }
+
+    const result = await userCollection.insertOne(user);
+    res.send(result);
   })
 
 
