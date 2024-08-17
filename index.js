@@ -36,12 +36,12 @@ async function run() {
     const cartsCollection = client.db("bistroBoss").collection("carts");
 
 
-    // jwt related api
+    // jwt related api__
 
-    app.post("/jwt", (req, res) => {
+    app.post("/jwt", async (req, res) => {
       const user = req.body;
       const token = jwt.sign(user, process.env.ASSESS_TOKEN_SECRET, {expiresIn: "1h"});
-      res.send({token});
+      res.send({ token });
     })
 
 
@@ -102,10 +102,63 @@ async function run() {
     res.send(result);
   })
 
+  // jwt maiddlewares__
+
+  // const veryfiToken = (req, res, next) => {
+  //   if(!req.headers.authorization) {
+  //     return res.status(401).send({massage: "unsuthorized access"});
+  //   }
+
+  //   const token = req.headers.authorization.split(" ")[1];
+
+  //   jwt.verify(token, process.env.ASSESS_TOKEN_SECRET, (error, decoded) => {
+  //     if(error) {
+  //       return req.status(401).send({massage: "unsuthorized access"})
+  //     }
+  //     req.decoded = decoded;
+  //     next();
+  //   })
+  // }
+
+
+  // Admin maiddlewares__
+
+  // const verifyAdmin = async (req, res, next) => {
+  //   const email = req.params.email;
+  //   const query = {email: email};
+  //   const user = await userCollection.findOne(query);
+  //   const isAdmin = user?.role === "admin";
+  //   if(!isAdmin) {
+  //     res.status(403).send({message: "forbidden access"});
+  //   }
+  //   next();
+  // }
+
+  // Get oparation for user with veryfi token__
+
   app.get("/user", async (req, res) => {
     const result = await userCollection.find().toArray();
     res.send(result);
   })
+
+  // Find who is admin__
+
+  // app.get("/user/admin/:email" , async (req, res) => {
+  //   const email = req.params.email;
+  //   if(email !== req.decoded.email) {
+  //     return res.status(403).send({message: "forbidden access"});
+  //   }
+
+  //   const query = {email: email};
+  //   const user = await userCollection.findOne(query);
+
+  //   let admin = false;
+  //   if(user) {
+  //     admin = user?.role === "admin"
+  //   }
+
+  //   res.send({admin});
+  // })
 
   // Delete oparation for user__
 
