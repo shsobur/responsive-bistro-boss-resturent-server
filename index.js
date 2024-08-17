@@ -124,20 +124,21 @@ async function run() {
 
   // Admin maiddlewares__
 
-  // const verifyAdmin = async (req, res, next) => {
-  //   const email = req.params.email;
-  //   const query = {email: email};
-  //   const user = await userCollection.findOne(query);
-  //   const isAdmin = user?.role === "admin";
-  //   if(!isAdmin) {
-  //     res.status(403).send({message: "forbidden access"});
-  //   }
-  //   next();
-  // }
+  const veryfiAdmin = async (req, res, next) => {
+    const email = req.decoded.email;
+    const query = {email: email};
+    const user = await userCollection.findOne(query);
+    const isAdmin = user?.role === "admin";
+    if(!isAdmin) {
+      return res.status(403).send({message: "forbidden access"});
+    }
+
+    next();
+  }
 
   // Get oparation for user with veryfi token__
 
-  app.get("/user", veryfiToken, async (req, res) => {
+  app.get("/user", veryfiToken, veryfiAdmin, async (req, res) => {
     const result = await userCollection.find().toArray();
     res.send(result);
   })
@@ -161,26 +162,10 @@ async function run() {
     res.send({admin});
   })
 
-  // app.get("/user/admin/:email" , async (req, res) => {
-  //   const email = req.params.email;
-  //   if(email !== req.decoded.email) {
-  //     return res.status(403).send({message: "forbidden access"});
-  //   }
-
-  //   const query = {email: email};
-  //   const user = await userCollection.findOne(query);
-
-  //   let admin = false;
-  //   if(user) {
-  //     admin = user?.role === "admin"
-  //   }
-
-  //   res.send({admin});
-  // })
 
   // Delete oparation for user__
 
-  app.delete("/user/:id", async (req, res) => {
+  app.delete("/user/:id", veryfiToken, veryfiAdmin, async (req, res) => {
     const id = req.params.id;
     const query = {_id: new ObjectId(id)}
     const result = await userCollection.deleteOne(query);
@@ -189,7 +174,7 @@ async function run() {
 
   // Patch oparation for admin__
 
-  app.patch("/user/admin/:id", async (req, res) => {
+  app.patch("/user/admin/:id", veryfiToken, veryfiAdmin, async (req, res) => {
     const id = req.params.id;
     const filter = {_id: new ObjectId(id)};
     const updateDoc =  {
