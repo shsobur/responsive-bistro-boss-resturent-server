@@ -45,10 +45,17 @@ async function run() {
     })
 
 
-    // Get oparation for find menus__
+    // Get and Post oparation for find menus__
 
     app.get("/menu", async (req, res) => {
       const result = await menuItemsCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.post("/menu", async (req, res) => {
+      console.log(req.body);
+      const item = req.body;
+      const result = await menuItemsCollection.insertOne(item);
       res.send(result);
     })
 
