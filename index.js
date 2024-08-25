@@ -3,6 +3,7 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const app = express();
 require("dotenv").config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
@@ -34,6 +35,25 @@ async function run() {
     const menuItemsCollection = client.db("bistroBoss").collection("menu");
     const reviewsCollection = client.db("bistroBoss").collection("review");
     const cartsCollection = client.db("bistroBoss").collection("carts");
+
+    // Stripe related api__
+
+    // app.post("/create-payment-intent", async(req, res) => {
+    //   const {price} = req.body;
+    //   const amount = parseInt(price * 100);
+
+    //   console.log("inside the intent:", amount);
+
+    //   const paymentIntent = await stripe.paymentIntents.create({
+    //     amount: amount,
+    //     currency: "usd",
+    //     payment_method_types: ["card"]
+    //   })
+
+    //   res.send({
+    //     clientSecret: paymentIntent.client_secret,
+    //   })
+    // })
 
 
     // jwt related api__
@@ -222,6 +242,18 @@ async function run() {
     };
     const result = await userCollection.updateOne(filter, updateDoc);
     res.send(result);
+  })
+
+  // Admin status__
+
+  app.get("/admin-stats", veryfiToken, veryfiAdmin, async (req, res) => {
+    const user = await userCollection.estimatedDocumentCount();
+    const menu = await menuItemsCollection.estimatedDocumentCount();
+
+    res.send({
+      user,
+      menu
+    })
   })
 
 
